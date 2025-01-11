@@ -10,6 +10,8 @@ if (import.meta.env.NODE_ENV === 'production') {
   var API_URL = 'http://localhost:5000'
 }
 
+console.log('API URL in AuthProvider:', API_URL);
+
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);

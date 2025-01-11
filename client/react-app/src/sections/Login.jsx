@@ -18,6 +18,7 @@ function Login() {
     var API_URL = 'http://localhost:5000'
   }
   
+  console.log('API URL in Login:', API_URL);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
