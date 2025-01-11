@@ -62,15 +62,20 @@ app.use(morgan(morganFormat, {
 console.log(process.env.FRONTEND_URL);
 
 // CORS and session configuration
-const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL 
-    : 'http://localhost:5173',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-};
-app.use(cors(corsOptions));
+app.use(cors({
+    origin: 'https://pokemon-card-game-client.vercel.app',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204
+  }));
+  
+  // Handle OPTIONS preflight requests
+  app.options('*', cors());
+  
+  // Your existing middleware
+  app.use(express.json());
 
 const sessionConfig = {
   secret: process.env.SESSION_SECRET || 'development-secret',
