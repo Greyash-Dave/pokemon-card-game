@@ -40,6 +40,13 @@ function BattleField(){
       setInGameMenu
   } = usePokemon(); 
 
+    // Use Vite's environment variable syntax
+    if (process.env.NODE_ENV === 'production'|| import.meta.env.NODE_ENV === 'production') {
+      var API_URL = import.meta.env.VITE_API_URL;
+    }else{
+      var API_URL = 'http://localhost:5000'
+    }
+
   const carddatas = [ ...pokemonDatas];
 //   const cards = [ ...pokemonCards];
 
@@ -448,7 +455,7 @@ const [isAnimating, setIsAnimating] = useState(false);
               status: res
           };
           
-          const response = await fetch("http://localhost:5000/result", {
+          const response = await fetch(`${API_URL}/result`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(body)
@@ -478,7 +485,7 @@ const [isAnimating, setIsAnimating] = useState(false);
             status: res == "win"? "lose":"win"
         };
         
-        const response = await fetch("http://localhost:5000/result", {
+        const response = await fetch(`${API_URL}/result`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body)
