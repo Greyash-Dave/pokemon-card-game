@@ -3,7 +3,11 @@ import React, { createContext, useState, useContext, useEffect, useCallback } fr
 const AuthContext = createContext();
 
 const INACTIVITY_TIMEOUT = 10 * 1000; // 10 seconds
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+if (import.meta.env.NODE_ENV === 'production') { 
+  API_URL = import.meta.env.VITE_API_URL;
+}else{
+  API_URL = 'http://localhost:5000'
+}
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

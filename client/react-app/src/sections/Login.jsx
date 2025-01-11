@@ -12,7 +12,12 @@ function Login() {
   const { setUser, setIsLoggedIn } = useAuth();
 
   // Use Vite's environment variable syntax
-  const API_URL = import.meta.env.REACT_APP_API_URL || 'http://localhost:5000';
+  if (import.meta.env.NODE_ENV === 'production') { 
+    API_URL = import.meta.env.VITE_API_URL;
+  }else{
+    API_URL = 'http://localhost:5000'
+  }
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
