@@ -4,8 +4,8 @@ const AuthContext = createContext();
 
 const INACTIVITY_TIMEOUT = 10 * 1000; // 10 seconds
 
-if (process.env.NODE_ENV === 'production') { 
-  var API_URL = process.env.REACT_APP_API_URL;
+if (process.env.NODE_ENV === 'production'|| import.meta.env.NODE_ENV === 'production') {
+  var API_URL = import.meta.env.VITE_API_URL;
 }else{
   var API_URL = 'http://localhost:5000'
 }
