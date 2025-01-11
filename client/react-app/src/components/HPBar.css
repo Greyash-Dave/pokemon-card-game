@@ -1,0 +1,55 @@
+.hp-bar {
+    width: 100%;
+    height: 2rem;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 10px;
+  }
+  
+  .hp-bar__inner {
+    height: 100%;
+    transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  }
+  
+  .hp-bar__text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #000;
+    font-weight: bold;
+    font-size: 1.2rem;
+    /* text-shadow: 
+      -1px -1px 0 #fff,
+      1px -1px 0 #fff,
+      -1px 1px 0 #fff,
+      1px 1px 0 #fff; */
+  }
+  
+  .hp-bar__text--outer {
+    width: 100%;
+    text-align: center;
+  }
+  
+  /* Optional: Add a border to make the bar stand out more */
+  .hp-bar {
+    border: 1px solid #999;
+  }
+  
+  /* Optional: Add a subtle shadow for depth */
+  .hp-bar__inner {
+    box-shadow: inset 0 2px 0 rgba(255,255,255,0.2);
+  }
+  
+  /* Adjust text color for better visibility when HP is low */
+  .hp-bar__inner[style*="width: 0%"] + .hp-bar__text--outer,
+  .hp-bar__inner[style*="width: 100%"][style*="background-color: red"] + .hp-bar__text--outer {
+    color: #fff;
+    text-shadow: 
+      -1px -1px 0 #000,
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+      1px 1px 0 #000;
+  }

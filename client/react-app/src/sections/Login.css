@@ -1,0 +1,118 @@
+:root {
+  --main-bg-color: #1a1b26;
+  --secondary-bg-color: #24283b;
+  --border-color: #7aa2f7;
+  --text-color: #a9b1d6;
+  --highlight-color: #bb9af7;
+  --accent-color: #f7768e;
+  --input-bg-color: rgba(36, 40, 59, 0.8);
+}
+
+.login-bg {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: var(--main-bg-color);
+  /* border: 2px solid var(--border-color); */
+  padding-top: 5rem;
+}
+
+.game-login {
+  background-color: var(--secondary-bg-color);
+  border: 5px solid var(--border-color);
+  width: 25rem;
+  max-width: 90%;
+  margin: 50px auto;
+  padding: 2rem;
+  font-family: 'Roboto', sans-serif;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.306);
+}
+
+.game-login h1 {
+  color: var(--highlight-color);
+  font-size: 2rem;
+  padding: 0.5rem;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(187, 154, 247, 0.5);
+}
+
+.input-group {
+  margin-bottom: 1.5rem;
+}
+
+.input-group label {
+  display: block;
+  color: var(--text-color);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--border-color);
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  font-size: 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+  border-color: var(--highlight-color);
+  box-shadow: 0 0 0 0.2rem rgba(187, 154, 247, 0.5);
+  outline: none;
+}
+
+.login-button {
+  background-color: var(--highlight-color);
+  color: var(--main-bg-color);
+  border: none;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: var(--accent-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.register-link {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  text-align: center;
+  color: var(--text-color);
+}
+
+.register-link a {
+  color: var(--highlight-color);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.register-link a:hover {
+  color: var(--accent-color);
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .game-login {
+    width: 90%;
+    padding: 1.5rem;
+  }
+
+  .game-login h1 {
+    font-size: 1.8rem;
+  }
+}

@@ -1,0 +1,217 @@
+:root {
+  --main-bg-color: #1a1b26;
+  --secondary-bg-color: #24283b;
+  --border-color: #7aa2f7;
+  --text-color: #a9b1d6;
+  --highlight-color: #bb9af7;
+  --accent-color: #f7768e;
+  --card-bg-color: rgba(36, 40, 59, 0.8);
+}
+
+.battlefield-section {
+  display: flex;
+  text-align: center;
+  justify-content: space-around;
+  align-items: flex-start;
+  padding: 2rem 1rem;
+  background-color: var(--main-bg-color);
+  min-height: 100vh;
+}
+
+.battlefield-container {
+  width: 100%;
+  height: 100vh;
+  border: 1px solid var(--border-color);
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  text-align: center;
+  align-items: center;
+  background-color: rgb(36, 40, 59);
+}
+
+.battlefield {
+  border: 1px solid var(--border-color);
+  width: 750px;
+  height: 750px;
+  position: relative;
+}
+
+.bg-image {
+  max-width: 750px;
+  max-height: 750px;
+}
+
+.pokemoncard {
+  max-width: 70px;
+  max-height: 112px;
+}
+
+.cardbtn {
+  width: 70px;
+  height: 100px;
+  background-color: var(--secondary-bg-color);
+  transition: all 0.3s ease;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.cardbtn:hover {
+  background-color: var(--card-bg-color);
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(122, 162, 247, 0.3);
+  background-color: black;
+  border-radius: 3rem;
+}
+
+.card-details {
+  position: absolute;
+}
+
+.selectbtn {
+  background-color: var(--highlight-color);
+  color: var(--main-bg-color);
+  width: 4rem;
+  margin-bottom: 1rem;
+  height: 2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.selectbtn:hover {
+  background-color: var(--accent-color);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(247, 118, 142, 0.4);
+}
+
+.ui {
+  position: absolute;
+}
+
+.opp-field,
+.player-field {
+  border: 2px solid var(--highlight-color);
+  width: 100%;
+  height: 750px;
+}
+
+.opp-field,
+.player-field,
+text {
+  font-weight: bold;
+  font-size: large;
+  color: var(--text-color);
+}
+
+.of-items,
+.pf-items {
+  border: 2px solid var(--highlight-color);
+  color: var(--text-color);
+  padding: 1rem;
+  background-color: var(--card-bg-color);
+  border-radius: 8px;
+}
+
+.of-items {
+  position: absolute;
+  top: 2rem;
+  left: 3rem;
+  transform: scale(0.75) translate(-20%, -15%);
+
+}
+
+.pf-items {
+  position: absolute;
+  bottom: 2rem;
+  right: 3rem;
+  transform: scale(0.75) translate(20%, 15%);
+
+}
+
+.bfui {
+  position: absolute;
+  bottom: 7.5%;
+  right: 7.5%;
+  background-color: var(--secondary-bg-color);
+  height: 14rem;
+  width: 6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid var(--highlight-color);
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(187, 154, 247, 0.3);
+}
+
+.back-button-img {
+  width: 3rem;
+}
+
+.back-button {
+  position: absolute;
+  bottom: 10%;
+  left: 9.5%;
+  color: var(--text-color);
+}
+
+.round-details {
+  color: var(--text-color);
+  position: absolute;
+  right: 4rem;
+  top: 5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  background-color: var(--card-bg-color);
+  border-radius: 10px;
+  border: 3px solid var(--border-color);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin: 20px 0;
+}
+
+.round-title {
+  margin-bottom: 10px;
+  color: var(--highlight-color);
+}
+
+.round-players {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  color: var(--text-color);
+}
+
+.round-title h1,
+.round-players h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.round-players h1 {
+  display: flex;
+  gap: 20px;
+}
+/* 
+.player-pokecard{
+  transform: scale(0.75);
+} */
+
+@media (max-width: 600px) {
+  .round-title h1,
+  .round-players h1 {
+    font-size: 1.5rem;
+  }
+
+  .round-players {
+    flex-direction: column;
+  }
+}

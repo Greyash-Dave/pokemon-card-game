@@ -1,0 +1,278 @@
+:root {
+  --main-bg-color: #1a1b26;
+  --secondary-bg-color: #24283b;
+  --border-color: #7aa2f7;
+  --text-color: #a9b1d6;
+  --highlight-color: #bb9af7;
+  --accent-color: #f7768e;
+  --card-bg-color: rgba(36, 40, 59, 0.8);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--main-bg-color);
+  color: var(--text-color);
+}
+
+.home-container-bg, .bg {
+  background-color: var(--main-bg-color);
+  padding: 5rem 0;
+  min-height: 100vh;
+}
+
+.home-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: var(--secondary-bg-color);
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.306);
+  border: 5px solid var(--border-color);
+}
+
+.home-description {
+  color: var(--text-color);
+}
+
+h1, .title {
+  color: var(--highlight-color);
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 10px rgba(187, 154, 247, 0.5);
+}
+
+h2 {
+  color: var(--accent-color);
+  font-size: 1.8rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+p {
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.game-features, .game-info, .api-info {
+  background-color: var(--card-bg-color);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.306);
+
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+li {
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+li::before {
+  content: '•';
+  color: var(--accent-color);
+  position: absolute;
+  left: 0;
+}
+
+.cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary {
+  background-color: var(--highlight-color);
+  color: var(--main-bg-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-color);
+}
+
+.btn-secondary {
+  background-color: var(--border-color);
+  color: var(--main-bg-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--highlight-color);
+}
+
+.api-info {
+  font-style: italic;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.page-title {
+  padding-top: 2rem;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  justify-content: space-around;
+  margin-bottom: 3rem;
+}
+
+.t {
+  color: var(--text-color);
+  text-align: center;
+  padding: 1rem;
+  background-color: var(--card-bg-color);
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+}
+
+/* Modal styles */
+.modal_result {
+  width: 90%;
+  max-width: 50rem;
+  background-color: var(--secondary-bg-color);
+  margin: auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(122, 162, 247, 0.2);
+  transition: all 0.3s ease;
+}
+
+.modal_result.hidden {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.modal-text {
+  color: var(--highlight-color);
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  font-size: 1.4rem;
+  background-color: var(--card-bg-color);
+  font-weight: bold;
+  border-radius: 8px;
+  text-align: center;
+  width: 100%;
+  max-width: 20rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-text2 {
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.modal-desc {
+  color: var(--text-color);
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  background-color: var(--card-bg-color);
+  padding: 1rem;
+  font-weight: 500;
+  text-align: center;
+  border-radius: 8px;
+  border: 2px solid var(--border-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 40rem;
+  display: flex;
+}
+
+.modal-btn {
+  background-color: var(--accent-color);
+  width: 6rem;
+  height: 2.5rem;
+  font-weight: bold;
+  color: var(--main-bg-color);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.modal-btn:hover {
+  background-color: var(--highlight-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: rgba(26, 27, 38, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+input{
+  height: 2rem;
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .home-container, .modal_result {
+    width: 95%;
+    padding: 1.5rem;
+  }
+
+  h1, .title {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .btn {
+    width: 100%;
+    max-width: 200px;
+  }
+}

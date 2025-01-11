@@ -1,0 +1,152 @@
+:root {
+    --main-bg-color: #1a1b26;
+    --secondary-bg-color: #24283b;
+    --border-color: #7aa2f7;
+    --text-color: #a9b1d6;
+    --highlight-color: #bb9af7;
+    --accent-color: #f7768e;
+  }
+  
+  .gamemenu-bg {
+    background-color: var(--main-bg-color);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* border: 2px solid var(--border-color); */
+    padding-top: 5rem;
+
+  }
+  
+  .game-menu-bg {
+    background: url('/path-to-your-background-image') no-repeat center center fixed;
+    background-size: cover;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .game-menu {
+    background-color: rgba(36, 40, 59, 0.8);
+    border-radius: 15px;
+    padding: 2rem;
+    max-width: 800px;
+    width: 95%;
+    color: var(--text-color);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.306);
+    border: 5px solid var(--border-color);
+
+  }
+  
+  .game-menu-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .game-menu h1 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: var(--highlight-color);
+    text-shadow: 0 0 10px rgba(187, 154, 247, 0.5);
+  }
+  
+  .game-menu select {
+    padding: 0.75rem;
+    font-size: 1.1rem;
+    border: 2px solid var(--border-color);
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    border-radius: 8px;
+    outline: none;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .game-menu select:hover,
+  .game-menu select:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 10px rgba(122, 162, 247, 0.3);
+  }
+  
+  .game-menu select option {
+    background-color: var(--secondary-bg-color);
+    color: var(--text-color);
+  }
+  
+  .game-menu-inputs {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 1.5rem;
+    /* width: 100%; */
+    gap: 1rem;
+  }
+  
+  .game-menu .btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+    color: black;
+    background-color: var(--accent-color);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .game-menu .btn:hover {
+    background-color: var(--highlight-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .game-menu .card-list {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+  }
+  
+  .card-list .cardbtn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    margin: 0.75rem;
+    transition: transform 0.3s ease;
+  }
+  
+  .game-menu .card-list .cardbtn:hover {
+    transform: scale(1.1);
+  }
+  
+  .game-menu .pokemoncard {
+    width: 150px;
+    height: auto;
+    border-radius: 1.5rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s ease;
+  }
+  
+  .game-menu .pokemoncard:hover {
+    box-shadow: 0 6px 12px rgba(122, 162, 247, 0.4);
+  }
+  
+  @media (max-width: 768px) {
+    .game-menu {
+      padding: 1.5rem;
+    }
+  
+    .game-menu h1 {
+      font-size: 1.75rem;
+    }
+  
+    .game-menu select,
+    .game-menu .btn {
+      font-size: 1rem;
+    }
+  
+    .game-menu .pokemoncard {
+      width: 120px;
+    }
+  }

@@ -1,0 +1,173 @@
+:root {
+    --main-bg-color: #1a1b26;
+    --secondary-bg-color: #24283b;
+    --border-color: #7aa2f7;
+    --text-color: #a9b1d6;
+    --highlight-color: #bb9af7;
+    --accent-color: #f7768e;
+    --card-bg-color: rgba(36, 40, 59, 0.8);
+  }
+  
+  .pokemon--section {
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 2rem;
+    background-color: var(--main-bg-color);
+    max-height: 60vh;
+    margin-top: 6rem;
+  }
+  
+  .pokemon--cardfield {
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    width: 100%;
+    /* padding: 2rem; */
+  }
+  
+  .pokemon--pokemonCards {
+    margin-top: 1rem;
+    max-width: 15rem;
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .pokemon--cards {
+    background-color: var(--secondary-bg-color);
+    padding: 1.5rem;
+    border: 2px var(--border-color) solid;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-height: 100%;
+    overflow-y: auto;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.306);
+    max-width: 30rem;
+  }
+  
+  .pokemon--input h2 {
+    margin-top: 1rem;
+    color: var(--highlight-color);
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+  }
+  
+  .pokemon-input-form {
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .btns {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .btn {
+    background-color: var(--highlight-color);
+    color: var(--main-bg-color);
+    padding: 0.75rem 1.5rem;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+  }
+  
+  .btn:hover {
+    background-color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  select {
+    appearance: none;
+    background-color: var(--secondary-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 35px 10px 15px;
+    font-size: 1.1rem;
+    font-family: 'Roboto', sans-serif;
+    color: var(--text-color);
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s ease;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a9b1d6' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 12px;
+    min-width: 200px;
+  }
+  
+  select:hover, select:focus {
+    border-color: var(--highlight-color);
+    box-shadow: 0 0 0 0.2rem rgba(187, 154, 247, 0.5);
+  }
+  
+  .card-lists {
+    padding: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    max-height: 60vh;
+    overflow-y: auto;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.306);
+    margin: 1rem;
+    margin-top: 2rem;
+
+  }
+  
+  .card-list {
+    border: 5px var(--highlight-color) solid;
+    border-radius: 15px;
+  }
+  
+  .card-list-container {
+    display: flex;
+    /* flex-direction: column; */
+    align-items: center;
+    justify-content: center;
+    margin: 2rem;
+    background-color: var(--card-bg-color);
+    padding: 1.5rem;
+    border: 2px var(--border-color) solid;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.306);
+  }
+  
+  .saveButton {
+    width: 5rem;
+    height: 2rem;
+    background-color: var(--accent-color);
+    color: var(--main-bg-color);
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: bold;
+  }
+  
+  .saveButton:hover {
+    background-color: var(--highlight-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }

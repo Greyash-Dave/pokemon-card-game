@@ -1,0 +1,21 @@
+Player
+(590px top)
+
+60px
+
+175px
+255
+340
+420
+505
+
+620
+
+(448 bt playing)
+
+AI
+(200 tp playing)
+
+(58px top)
+
+....
