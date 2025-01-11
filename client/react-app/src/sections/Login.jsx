@@ -18,7 +18,7 @@ function Login() {
     var API_URL = 'http://localhost:5000'
   }
   
-  console.log('API URL in Login:', API_URL);
+  console.log('API URL in Login:', API_URL, import.meta.env.NODE_ENV);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
