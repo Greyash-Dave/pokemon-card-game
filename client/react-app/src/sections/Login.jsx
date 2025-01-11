@@ -13,9 +13,9 @@ function Login() {
 
   // Use Vite's environment variable syntax
   if (import.meta.env.NODE_ENV === 'production') { 
-    API_URL = import.meta.env.VITE_API_URL;
+    var API_URL = import.meta.env.VITE_API_URL;
   }else{
-    API_URL = 'http://localhost:5000'
+    var API_URL = 'http://localhost:5000'
   }
   
 
