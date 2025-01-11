@@ -59,6 +59,8 @@ app.use(morgan(morganFormat, {
   },
 }));
 
+console.log(process.env.FRONTEND_URL);
+
 // CORS and session configuration
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
