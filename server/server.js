@@ -578,6 +578,38 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// Add this route after your other authentication routes (login/register)
+app.post('/logout', (req, res) => {
+    try {
+        // Check if there's an active session
+        if (req.session) {
+            // Destroy the session
+            req.session.destroy(err => {
+                if (err) {
+                    logger.error('Error during logout:', err);
+                    return res.status(500).json({ message: 'Error during logout' });
+                }
+                
+                // Clear the cookie
+                res.clearCookie('connect.sid', {
+                    path: '/',
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+                });
+                
+                logger.info('User logged out successfully');
+                res.json({ message: 'Logged out successfully' });
+            });
+        } else {
+            res.json({ message: 'No active session' });
+        }
+    } catch (error) {
+        logger.error('Logout error:', error);
+        res.status(500).json({ message: 'Internal server error during logout' });
+    }
+});
+
 app.get("/pokemon/:name", async (req, res) => {
     try {
         const pokemonName = req.params.name.toLowerCase();

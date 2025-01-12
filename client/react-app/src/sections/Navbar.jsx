@@ -1,32 +1,100 @@
-// Navbar.js
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import './Navbar.css';
+import { transform } from 'framer-motion';
 
 function Navbar() {
-  const { user, logout } = useAuth();  // We only need user and logout now
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
   };
 
+  const isActiveRoute = (path) => {
+    return location.pathname === path;
+  };
+
+  const navStyle = location.pathname === '/battle' ? { transform: 'translateY(-100px)' } : {};
+
   return (
-    <div className="navbar-items">
-      <div><Link to="/">Home</Link></div>
-      <div><Link to="/deck-builder">Deck Builder</Link></div>
-      <div><Link to="/game-menu">Menu</Link></div>
-      {user ? (
-        <>
-          <div><Link to="/dashboard">Dashboard</Link></div>
-          <div><button className='log-btn' onClick={handleLogout}>Logout</button></div>
-        </>
-      ) : (
-        <div><Link to="/login">Login</Link></div>
-      )}
-    </div>
+    <nav className={`navbar ${isScrolled ? 'navbar-scrolled' : ''}`} style={navStyle}>
+      {/* Rest of your navbar code remains the same */}
+      <div className="navbar-content">
+        <div className="navbar-brand">
+          <Link to="/" className="logo">Poke Battle</Link>
+        </div>
+    
+        <button 
+          className={`mobile-menu-button ${isMobileMenuOpen ? 'active' : ''}`}
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <div className={`navbar-items ${isMobileMenuOpen ? 'active' : ''}`}>
+          <Link 
+            to="/" 
+            className={`nav-link ${isActiveRoute('/') ? 'active' : ''}`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Home
+          </Link>
+          <Link 
+            to="/deck-builder" 
+            className={`nav-link ${isActiveRoute('/deck-builder') ? 'active' : ''}`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Deck Builder
+          </Link>
+          <Link 
+            to="/game-menu" 
+            className={`nav-link ${isActiveRoute('/game-menu') ? 'active' : ''}`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Menu
+          </Link>
+          {user ? (
+            <>
+              <Link 
+                to="/dashboard" 
+                className={`nav-link ${isActiveRoute('/dashboard') ? 'active' : ''}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Dashboard
+              </Link>
+              <button className="log-btn" onClick={handleLogout}>
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link 
+              to="/login" 
+              className={`nav-link ${isActiveRoute('/login') ? 'active' : ''}`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Login
+            </Link>
+          )}
+        </div>
+      </div>
+    </nav>
   );
 }
 
