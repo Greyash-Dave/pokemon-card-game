@@ -64,39 +64,29 @@ console.log(process.env.FRONTEND_URL);
 // CORS and session configuration
 app.use(cors({
     origin: 'https://pokemon-card-game-client.vercel.app',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204
-  }));
-  
-  // Handle OPTIONS preflight requests
-  app.options('*', cors());
-  
-  // Your existing middleware
-  app.use(express.json());
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['X-CSRF-Token', 'X-Requested-With', 'Accept', 'Accept-Version', 'Content-Length', 'Content-MD5', 'Content-Type', 'Date', 'X-Api-Version', 'Authorization'],
+    credentials: true
+}));
+
+// Your existing middleware
+app.use(express.json());
 
 const sessionConfig = {
-  secret: process.env.SESSION_SECRET || 'development-secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { 
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-    maxAge: 30 * 60 * 1000
-  },
-  name: 'sessionId'
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    proxy: true,
+    cookie: { 
+        secure: true, // Force secure in production
+        httpOnly: true,
+        sameSite: 'none', // Required for cross-origin
+        maxAge: 30 * 60 * 1000
+    }
 };
 
-if (process.env.NODE_ENV === 'production') {
-  app.set('trust proxy', 1);
-  sessionConfig.cookie.secure = true;
-}
-
+app.set('trust proxy', 1);
 app.use(session(sessionConfig));
-app.use(express.json());
 
 // Authentication middleware
 const isAuthenticated = (req, res, next) => {

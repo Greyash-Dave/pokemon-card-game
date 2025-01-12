@@ -33,46 +33,25 @@ function Login() {
         },
         body: JSON.stringify({ username, password }),
         credentials: 'include',
+        mode: 'cors'
       });
 
-      // Check if response is ok before trying to parse JSON
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new TypeError("Expected JSON response but got " + contentType);
+        const errorData = await response.json().catch(() => ({
+          message: `HTTP error! status: ${response.status}`
+        }));
+        throw new Error(errorData.message);
       }
 
       const data = await response.json();
-
-      setMessage('Login successful');
-      console.log('Login successful:', data.user);
-      
-      // Store user data in localStorage for persistence
-      localStorage.setItem('user', JSON.stringify(data.user));
-      
-      setUser(data.user);
-      setIsLoggedIn(true);
-      
-      // Add timestamp for session tracking
-      localStorage.setItem('loginTimestamp', Date.now().toString());
-      
-      navigate('/dashboard');
+      // ... rest of your success handling
     } catch (error) {
       console.error('Login error:', error);
-      setMessage(error.message === 'Failed to fetch' 
-        ? 'Error connecting to server. Please try again.'
-        : 'Invalid username or password');
-      
-      // Clear auth data on error
-      localStorage.removeItem('user');
-      localStorage.removeItem('loginTimestamp');
+      setMessage(error.message || 'Failed to login. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  };
+};
 
   // Optional: Add session timeout check
   const checkSessionTimeout = () => {
