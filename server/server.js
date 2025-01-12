@@ -112,16 +112,22 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Logging middleware
+
+var logs = [];
+
 const morganFormat = process.env.NODE_ENV === 'production' 
   ? ":remote-addr - :remote-user [:date[clf]] ':method :url HTTP/:http-version' :status :res[content-length] ':referrer' ':user-agent'"
   : "dev";
 
 app.use(morgan(morganFormat, {
-  stream: {
+stream: {
     write: (message) => {
-      logger.info(message.trim());
+    const trimmedMessage = message.trim();
+    const logEntry = `Date: ${new Date().toISOString()} - ${trimmedMessage}`;
+    logs.push(logEntry.replace(/\u001b\[.*?m/g, '')); // Store the log message in the array
+    logger.info(trimmedMessage); // Log the message using your custom logger
     },
-  },
+},
 }));
 
 console.log(process.env.FRONTEND_URL);
@@ -135,181 +141,40 @@ const isAuthenticated = (req, res, next) => {
     }
 };
 
-const log = async (level, message, meta = {}) => {
-    const timestamp = new Date().toISOString();
-    const logEntry = {
-        timestamp,
-        level,
-        message,
-        meta: JSON.stringify(meta)
-    };
-
-    console.log(`[${timestamp}] ${level}: ${message}`, meta);
-
-    try {
-        const { error } = await supabase
-            .from('server_logs')
-            .insert([logEntry]);
-        
-        if (error) {
-            console.error('Error saving log to Supabase:', error);
-        }
-    } catch (err) {
-        console.error('Error in logging:', err);
-    }
-};
-
-// Root endpoint with log display
 // Root endpoint with log display
 app.get('/', async (req, res) => {
-    try {
-        // Fetch recent logs from Supabase
-        const { data: logs, error } = await supabase
-            .from('server_logs')
-            .select('*')
-            .order('timestamp', { ascending: false })
-            .limit(100);
+    const formattedLogs = logs.map(log => `<p>${log}</p>`).join('');
+    res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {
+                    background-color: #13001a;
+                    font-family: monospace;
+                    white-space: pre-wrap;
+                }
 
-        if (error) throw error;
+                h1 {
+                    color: white;
+                    font-size: 2rem;
+                }
 
-        // Ensure logs is an array, even if empty
-        const safeLogData = Array.isArray(logs) ? logs : [];
-
-        res.send(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Server Logs</title>
-                <style>
-                    body { 
-                        font-family: monospace; 
-                        background: #1e1e1e; 
-                        color: #d4d4d4; 
-                        margin: 0; 
-                        padding: 20px; 
-                    }
-                    #logs { 
-                        white-space: pre-wrap; 
-                        word-wrap: break-word; 
-                    }
-                    .log-entry {
-                        padding: 5px;
-                        border-bottom: 1px solid #333;
-                    }
-                    .info { color: #569cd6; }
-                    .error { color: #f44747; }
-                    .warn { color: #dcdcaa; }
-                    .debug { color: #6a9955; }
-                    .timestamp { color: #808080; }
-                    #controls {
-                        position: fixed;
-                        top: 0;
-                        right: 0;
-                        padding: 10px;
-                        background: #2d2d2d;
-                    }
-                </style>
-            </head>
-            <body>
-                <div id="controls">
-                    <button onclick="clearLogs()">Clear Logs</button>
-                    <button onclick="refreshLogs()">Refresh</button>
-                </div>
-                <h1>Server Logs</h1>
-                <div id="logs"></div>
-                <script>
-                    const logsDiv = document.getElementById('logs');
-                    
-                    function addLogEntry(log) {
-                        if (!log || !log.timestamp || !log.level || !log.message) return;
-                        
-                        const entry = document.createElement('div');
-                        entry.className = 'log-entry ' + (log.level || 'info');
-                        let metaText = '';
-                        try {
-                            const meta = log.meta ? JSON.parse(log.meta) : {};
-                            metaText = Object.keys(meta).length > 0 ? 
-                                ' ' + JSON.stringify(meta, null, 2) : '';
-                        } catch (e) {
-                            metaText = log.meta ? ' ' + log.meta : '';
-                        }
-                        entry.innerHTML = \`<span class="timestamp">[${log.timestamp}]</span> ${log.level.toUpperCase()}: ${log.message} ${metaText}\`;
-                        logsDiv.insertBefore(entry, logsDiv.firstChild);
-                    }
-
-                    async function refreshLogs() {
-                        try {
-                            const response = await fetch('/api/logs');
-                            if (!response.ok) throw new Error('Failed to fetch logs');
-                            const logs = await response.json();
-                            logsDiv.innerHTML = '';
-                            if (Array.isArray(logs)) {
-                                logs.forEach(addLogEntry);
-                            }
-                        } catch (error) {
-                            console.error('Error fetching logs:', error);
-                            logsDiv.innerHTML = '<div class="log-entry error">Error fetching logs</div>';
-                        }
-                    }
-
-                    async function clearLogs() {
-                        if (confirm('Are you sure you want to clear all logs?')) {
-                            try {
-                                const response = await fetch('/api/logs/clear', { method: 'POST' });
-                                if (!response.ok) throw new Error('Failed to clear logs');
-                                refreshLogs();
-                            } catch (error) {
-                                console.error('Error clearing logs:', error);
-                                logsDiv.innerHTML = '<div class="log-entry error">Error clearing logs</div>';
-                            }
-                        }
-                    }
-
-                    // Initial load
-                    ${JSON.stringify(safeLogData)}.forEach(addLogEntry);
-
-                    // Refresh every 5 seconds
-                    setInterval(refreshLogs, 5000);
-                </script>
-            </body>
-            </html>
-        `);
-    } catch (error) {
-        console.error('Error in root endpoint:', error);
-        res.status(500).send('Error fetching logs. Please try again later.');
-    }
+                p {
+                    color:rgb(2, 255, 154);
+                    font-size: 1.3rem;
+                }
+            </style>
+        </head>
+        <body>
+            <h1>Logs:</hi>
+            ${formattedLogs}        
+        </body>
+        </html>
+    `);
 });
 
-// API endpoint to fetch logs
-app.get('/logs', async (req, res) => {
-    try {
-        const { data, error } = await supabase
-            .from('server_logs')
-            .select('*')
-            .order('timestamp', { ascending: false })
-            .limit(100);
 
-        if (error) throw error;
-        res.json(data);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch logs' });
-    }
-});
-
-// API endpoint to clear logs
-app.post('/logs/clear', async (req, res) => {
-    try {
-        const { error } = await supabase
-            .from('server_logs')
-            .delete()
-            .gte('timestamp', '1970-01-01');
-
-        if (error) throw error;
-        res.json({ message: 'Logs cleared' });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to clear logs' });
-    }
-});
 
 // Routes
 app.post("/result", isAuthenticated, async (req, res) => {
