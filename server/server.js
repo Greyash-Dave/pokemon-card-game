@@ -160,6 +160,7 @@ const log = async (level, message, meta = {}) => {
 };
 
 // Root endpoint with log display
+// Root endpoint with log display
 app.get('/', async (req, res) => {
     try {
         // Fetch recent logs from Supabase
@@ -170,6 +171,9 @@ app.get('/', async (req, res) => {
             .limit(100);
 
         if (error) throw error;
+
+        // Ensure logs is an array, even if empty
+        const safeLogData = Array.isArray(logs) ? logs : [];
 
         res.send(`
             <!DOCTYPE html>
@@ -217,11 +221,13 @@ app.get('/', async (req, res) => {
                     const logsDiv = document.getElementById('logs');
                     
                     function addLogEntry(log) {
+                        if (!log || !log.timestamp || !log.level || !log.message) return;
+                        
                         const entry = document.createElement('div');
-                        entry.className = 'log-entry ' + log.level;
+                        entry.className = 'log-entry ' + (log.level || 'info');
                         let metaText = '';
                         try {
-                            const meta = JSON.parse(log.meta);
+                            const meta = log.meta ? JSON.parse(log.meta) : {};
                             metaText = Object.keys(meta).length > 0 ? 
                                 ' ' + JSON.stringify(meta, null, 2) : '';
                         } catch (e) {
@@ -234,27 +240,33 @@ app.get('/', async (req, res) => {
                     async function refreshLogs() {
                         try {
                             const response = await fetch('/api/logs');
+                            if (!response.ok) throw new Error('Failed to fetch logs');
                             const logs = await response.json();
                             logsDiv.innerHTML = '';
-                            logs.forEach(addLogEntry);
+                            if (Array.isArray(logs)) {
+                                logs.forEach(addLogEntry);
+                            }
                         } catch (error) {
                             console.error('Error fetching logs:', error);
+                            logsDiv.innerHTML = '<div class="log-entry error">Error fetching logs</div>';
                         }
                     }
 
                     async function clearLogs() {
                         if (confirm('Are you sure you want to clear all logs?')) {
                             try {
-                                await fetch('/api/logs/clear', { method: 'POST' });
+                                const response = await fetch('/api/logs/clear', { method: 'POST' });
+                                if (!response.ok) throw new Error('Failed to clear logs');
                                 refreshLogs();
                             } catch (error) {
                                 console.error('Error clearing logs:', error);
+                                logsDiv.innerHTML = '<div class="log-entry error">Error clearing logs</div>';
                             }
                         }
                     }
 
                     // Initial load
-                    ${JSON.stringify(logs)}.forEach(addLogEntry);
+                    ${JSON.stringify(safeLogData)}.forEach(addLogEntry);
 
                     // Refresh every 5 seconds
                     setInterval(refreshLogs, 5000);
@@ -263,12 +275,13 @@ app.get('/', async (req, res) => {
             </html>
         `);
     } catch (error) {
-        res.status(500).send('Error fetching logs');
+        console.error('Error in root endpoint:', error);
+        res.status(500).send('Error fetching logs. Please try again later.');
     }
 });
 
 // API endpoint to fetch logs
-app.get('/api/logs', async (req, res) => {
+app.get('/logs', async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('server_logs')
@@ -284,7 +297,7 @@ app.get('/api/logs', async (req, res) => {
 });
 
 // API endpoint to clear logs
-app.post('/api/logs/clear', async (req, res) => {
+app.post('/logs/clear', async (req, res) => {
     try {
         const { error } = await supabase
             .from('server_logs')
