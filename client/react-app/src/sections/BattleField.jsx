@@ -41,6 +41,9 @@ function BattleField(){
   } = usePokemon(); 
 
   const carddatas = [ ...pokemonDatas];
+
+  const maxRound = 1;
+  const isSingleRound = true;
 //   const cards = [ ...pokemonCards];
 
   const [pressedButtonId, setPressedButtonId] = useState();
@@ -443,63 +446,41 @@ const [isAnimating, setIsAnimating] = useState(false);
   
       try {
           const body = {
-              player: user.username,
-              deck_list: [
-                  carddatas[0].name,
-                  carddatas[1].name,
-                  carddatas[2].name,
-                  carddatas[3].name,
-                  carddatas[4].name
-              ],
-              card_contribution: status,
-              status: res
+              playerResult: {
+                  player: user.username, // Include username in the payload
+                  deck_list: carddatas.map(card => card.name),
+                  card_contribution: status,
+                  status: res
+              },
+              opponentResult: {
+                  player: 'opponent',
+                  deck_list: oppCardData.map(card => card.cardData.name),
+                  card_contribution: oppstatus,
+                  status: res === "win" ? "lose" : "win"
+              }
           };
+  
+          console.log("Sending request with body:", body);
           
           const response = await fetch(`${API_URL}/result`, {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: { 
+                  "Content-Type": "application/json"
+              },
               body: JSON.stringify(body)
           });
   
           if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
+              const errorData = await response.json().catch(() => null);
+              console.error("Server error details:", errorData);
+              throw new Error(`HTTP error! status: ${response.status}, details: ${JSON.stringify(errorData)}`);
           }
   
           const result = await response.json();
-          console.log("Response:", result);
+          console.log("Success Response:", result);
       } catch (err) {
           console.error("Fetch error:", err);
       }
-
-      try {
-        const body = {
-            player: "opponent",
-            deck_list: [
-                oppCardData[0].cardData.name,
-                oppCardData[1].cardData.name,
-                oppCardData[2].cardData.name,
-                oppCardData[3].cardData.name,
-                oppCardData[4].cardData.name
-            ],
-            card_contribution: oppstatus,
-            status: res == "win"? "lose":"win"
-        };
-        
-        const response = await fetch(`${API_URL}/result`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        console.log("Response:", result);
-    } catch (err) {
-        console.error("Fetch error:", err);
-    }
   
       setCardStatus([0, 0, 0, 0, 0]);
       setOppCardStatus([0, 0, 0, 0, 0]);
@@ -569,7 +550,7 @@ const [isAnimating, setIsAnimating] = useState(false);
             setCardStatus(status)
 
             if (curOpCardIndex==4){
-              if (round[0]==2){
+              if (round[0]==maxRound-1 || isSingleRound){
                 setModalText("You Won!")
                 handleEnd("win", status, oppCardStatus)
 
@@ -648,7 +629,7 @@ const [isAnimating, setIsAnimating] = useState(false);
           // console.log(playerHPs)
   
           if (newPlayerHPs.every(hp => hp === 0)) {
-              if (round[1]==2){
+              if (round[1]==maxRound-1 || isSingleRound){
                 setModalText('You lost!')
                 handleEnd("lose", cardStatus, oppCardStatus)
                 

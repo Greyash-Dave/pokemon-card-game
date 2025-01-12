@@ -106,36 +106,41 @@ function DeckBuilder() {
         setRemCard(key);
       };
   
-      async function saveCards(){
+      async function saveCards() {
         try {
-          const body = {
-              user_name: user.username,
-              deck_name: deckName,
-              deck_list: [
-                  pokemonDatas[0].name,
-                  pokemonDatas[1].name,
-                  pokemonDatas[2].name,
-                  pokemonDatas[3].name,
-                  pokemonDatas[4].name
-              ]
-          };
-          
-          const response = await fetch(`${API_URL}/decklist`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(body)
-          });
-  
-          if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-          }
-  
-          const result = await response.json();
-          console.log("Response:", result);
-      } catch (err) {
-          console.error("Fetch error:", err);
-      }
-      }
+            if (!deckName?.trim()) {
+                console.error("Deck name is required");
+                return;
+            }
+    
+            const body = {
+                user_name: user.username,
+                deck_name: deckName,
+                deck_list: pokemonDatas.slice(0, 5).map(pokemon => pokemon.name)
+            };
+            
+            console.log("Sending deck data:", body);
+    
+            const response = await fetch(`${API_URL}/decklist/`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null);
+                console.error("Server error details:", errorData);
+                throw new Error(`HTTP error! status: ${response.status}, details: ${JSON.stringify(errorData)}`);
+            }
+    
+            const result = await response.json();
+            console.log("Deck saved successfully:", result);
+            // You might want to show a success message to the user here
+        } catch (err) {
+            console.error("Failed to save deck:", err);
+            // You might want to show an error message to the user here
+        }
+    }
   
     //   async function loadDeck() {
     //     try {
@@ -194,30 +199,26 @@ function DeckBuilder() {
       //     }
       //   }
     
+      // Client-side fetching
       async function fetchData(pokemonName) {
-        if (pokemonName !== "") {
-            try {
-                // First, try to fetch from our local server (which will check the database)
-                const serverResponse = await fetch(`${API_URL}/pokemon/${pokemonName}`);
-                if (!serverResponse.ok) {
-                    throw new Error("Could not fetch result from server");
-                }
-    
-                const data = await serverResponse.json();
-                setPokemonData(data);
-    
-                let desc = "Type => | ";
-                data.types.forEach((type) => {
-                    desc += type.type.name + " | ";
-                });
-                setPokemonCard(<PokemonCard width={20} pokemonData={data} pokemonDesc={desc.trim()} />)
-            } catch (error) {
-                console.log("Error fetching data:", error);
-                // If there's an error, we don't need to do anything here as the server
-                // should have already tried both the database and PokeAPI
+        if (!pokemonName?.trim()) return;
+        
+        try {
+            const serverResponse = await fetch(`${API_URL}/pokemon/${pokemonName.toLowerCase()}`);
+            if (!serverResponse.ok) {
+                throw new Error(`Server error: ${serverResponse.status}`);
             }
+
+            const data = await serverResponse.json();
+            setPokemonData(data);
+
+            const desc = "Type => | " + data.types.map(type => type.type.name).join(" | ") + " |";
+            setPokemonCard(<PokemonCard width={20} pokemonData={data} pokemonDesc={desc} />);
+        } catch (error) {
+            console.error("Error fetching pokemon data:", error);
+            // Optionally handle error state here
         }
-    }
+      }
 
     function handleBack(){
         navigate('/');

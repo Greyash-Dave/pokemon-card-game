@@ -143,13 +143,13 @@ app.use(morgan(morganFormat, {
 console.log(process.env.FRONTEND_URL);
 
 // Authentication middleware
-const isAuthenticated = (req, res, next) => {
-    if (req.session.user) {
-        next();
-    } else {
-        res.status(401).json({ message: 'Not authenticated' });
-    }
-};
+// const isAuthenticated = (req, res, next) => {
+//     if (req.session.user) {
+//         next();
+//     } else {
+//         res.status(401).json({ message: 'Not authenticated' });
+//     }
+// };
 
 // Root endpoint with log display
 app.get('/', async (req, res) => {
@@ -187,50 +187,86 @@ app.get('/', async (req, res) => {
 
 
 // Routes
-app.post("/result", isAuthenticated, async (req, res) => {
+// Server-side endpoint
+app.post("/result", async (req, res) => {
     try {
-        const { player, deck_list, card_contribution, status } = req.body;
+        console.log("Received request body:", req.body);
 
-        if (player !== req.session.user.username) {
-            return res.status(403).json({ message: 'Unauthorized' });
+        const { playerResult, opponentResult } = req.body;
+
+        // Basic validation
+        if (!playerResult || !opponentResult) {
+            return res.status(400).json({ 
+                message: "Missing required fields",
+                details: {
+                    hasPlayerResult: !!playerResult,
+                    hasOpponentResult: !!opponentResult
+                }
+            });
         }
 
-        if (!player || !deck_list || !card_contribution || !status) {
-            return res.status(400).json({ message: "Missing required fields" });
-        }
-
+        // Insert both results
         const { data, error } = await supabase
             .from('result')
-            .insert([{
-                player,
-                deck_list,
-                card_contribution,
-                status
-            }])
+            .insert([
+                {
+                    player: playerResult.player,
+                    deck_list: playerResult.deck_list,
+                    card_contribution: playerResult.card_contribution,
+                    status: playerResult.status
+                },
+                {
+                    player: opponentResult.player,
+                    deck_list: opponentResult.deck_list,
+                    card_contribution: opponentResult.card_contribution,
+                    status: opponentResult.status
+                }
+            ])
             .select();
 
-        if (error) throw error;
+        if (error) {
+            console.error("Supabase error:", error);
+            throw error;
+        }
 
-        logger.info(`New result created for player: ${player}`);
-        res.json(data[0]);
+        console.log("Battle results recorded successfully");
+        res.json(data);
     } catch (err) {
-        logger.error("Error handling /result POST request:", err);
-        res.status(500).json({ message: "Server error" });
+        console.error("Error in /result POST:", err);
+        res.status(500).json({ 
+            message: "Server error",
+            error: err.message
+        });
     }
 });
 
-app.post("/decklist", isAuthenticated, async (req, res) => {
+app.post("/decklist", async (req, res) => {
     try {
+        console.log("Received deck save request:", req.body);
+
         const { user_name, deck_name, deck_list } = req.body;
 
-        if (user_name !== req.session.user.username) {
-            return res.status(403).json({ message: 'Unauthorized' });
-        }
-
+        // Validate required fields
         if (!user_name || !deck_name || !deck_list) {
-            return res.status(400).json({ message: "Missing required fields" });
+            return res.status(400).json({ 
+                message: "Missing required fields",
+                details: {
+                    hasUsername: !!user_name,
+                    hasDeckName: !!deck_name,
+                    hasDeckList: !!deck_list
+                }
+            });
         }
 
+        // Validate deck list length
+        if (!Array.isArray(deck_list) || deck_list.length !== 5) {
+            return res.status(400).json({ 
+                message: "Invalid deck list",
+                details: "Deck must contain exactly 5 cards"
+            });
+        }
+
+        // Insert the deck
         const { data, error } = await supabase
             .from('decks')
             .insert([{
@@ -240,16 +276,23 @@ app.post("/decklist", isAuthenticated, async (req, res) => {
             }])
             .select();
 
-        if (error) throw error;
+        if (error) {
+            console.error("Supabase error:", error);
+            throw error;
+        }
 
+        console.log("Deck saved successfully:", data[0]);
         res.json(data[0]);
     } catch (err) {
-        logger.error("Error handling /decklist POST request:", err);
-        res.status(500).json({ message: "Server error" });
+        console.error("Error saving deck:", err);
+        res.status(500).json({ 
+            message: "Failed to save deck",
+            error: err.message
+        });
     }
 });
 
-app.get("/deckdisplay/:user", isAuthenticated, async (req, res) => {
+app.get("/deckdisplay/:user", async (req, res) => {
     try {
         const userName = req.params.user;
         
@@ -271,7 +314,7 @@ app.get("/deckdisplay/:user", isAuthenticated, async (req, res) => {
     }
 });
 
-app.get('/results/:username', isAuthenticated, async (req, res) => {
+app.get('/results/:username', async (req, res) => {
     try {
       const username = req.params.username;
   
@@ -502,43 +545,74 @@ app.get("/pokemon/:name", async (req, res) => {
     try {
         const pokemonName = req.params.name.toLowerCase();
         
-        // Check cache in Supabase
-        const { data: existingPokemon, error } = await supabase
+        // First, try to get from cache
+        const { data: existingPokemon, error: fetchError } = await supabase
             .from('pokemon_data')
-            .select('data, created_at')
-            .eq('data->>name', pokemonName)
+            .select('id, name, data, created_at')
+            .eq('name', pokemonName)
             .single();
         
+        // Check if we have valid cached data
         if (existingPokemon) {
-            const age = Date.now() - new Date(existingPokemon.created_at).getTime();
-            if (age < 24 * 60 * 60 * 1000) { // 24 hours
+            const cacheAge = Date.now() - new Date(existingPokemon.created_at).getTime();
+            const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+
+            if (cacheAge < CACHE_DURATION) {
+                console.log(`Serving cached data for ${pokemonName}`);
                 return res.json(existingPokemon.data);
             }
+            console.log(`Cache expired for ${pokemonName}, fetching fresh data`);
+        } else {
+            console.log(`No cached data found for ${pokemonName}`);
         }
 
+        // Fetch fresh data from PokeAPI
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
         if (!response.ok) {
-            return res.status(404).json({ message: "Pokemon not found" });
+            return res.status(404).json({ 
+                message: "Pokemon not found",
+                details: `PokeAPI returned status ${response.status}`
+            });
         }
         
-        const data = await response.json();
+        const pokeData = await response.json();
         
-        // Upsert the new data
-        const { error: upsertError } = await supabase
-            .from('pokemon_data')
-            .upsert({ data })
-            .eq('data->>name', pokemonName);
+        // Update or insert the data
+        if (existingPokemon) {
+            // Update existing record
+            const { error: updateError } = await supabase
+                .from('pokemon_data')
+                .update({ 
+                    data: pokeData,
+                    created_at: new Date().toISOString()
+                })
+                .eq('id', existingPokemon.id);
 
-        if (upsertError) throw upsertError;
+            if (updateError) throw updateError;
+        } else {
+            // Insert new record
+            const { error: insertError } = await supabase
+                .from('pokemon_data')
+                .insert({
+                    name: pokemonName,
+                    data: pokeData,
+                    created_at: new Date().toISOString()
+                });
+
+            if (insertError) throw insertError;
+        }
         
-        return res.json(data);
+        return res.json(pokeData);
     } catch (err) {
-        logger.error("Error handling /pokemon/:name GET request:", err);
-        res.status(500).json({ message: "Server error" });
+        console.error("Error handling pokemon request:", err);
+        res.status(500).json({ 
+            message: "Server error",
+            error: err.message 
+        });
     }
 });
 
-app.get("/decklist/:user/:name", isAuthenticated, async (req, res) => {
+app.get("/decklist/:user/:name", async (req, res) => {
     try {
         const userName = req.params.user;
         const deckName = req.params.name;
