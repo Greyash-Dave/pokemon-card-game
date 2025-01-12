@@ -61,52 +61,39 @@ app.use(morgan(morganFormat, {
 
 console.log(process.env.FRONTEND_URL);
 
-// At the top of your server.js file, after the initial requires
-const corsOptions = {
-    origin: function (origin, callback) {
-      const allowedOrigins = [
-        'https://pokemon-card-game-client.vercel.app',
-        'http://localhost:5173', // Vite's default dev server port
-        'http://localhost:3000',
-        process.env.FRONTEND_URL
-      ];
-      
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+// CORS and session configuration
+app.use(cors({
+    origin: 'https://pokemon-card-game-client.vercel.app',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204
-  };
+  }));
   
-  // Replace your existing cors middleware with this:
-  app.use(cors(corsOptions));
+  // Handle OPTIONS preflight requests
+  app.options('*', cors());
   
-  // Ensure your session configuration has the correct settings
-  const sessionConfig = {
-    secret: process.env.SESSION_SECRET || 'development-secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { 
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Changed from 'strict' to 'none'
-      maxAge: 30 * 60 * 1000,
-      domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : 'localhost'
-    },
-    name: 'sessionId'
-  };
-  
-  if (process.env.NODE_ENV === 'production') {
-    app.set('trust proxy', 1);
-    sessionConfig.cookie.secure = true;
-  }
+  // Your existing middleware
+  app.use(express.json());
+
+const sessionConfig = {
+  secret: process.env.SESSION_SECRET || 'development-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+    maxAge: 30 * 60 * 1000
+  },
+  name: 'sessionId'
+};
+
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+  sessionConfig.cookie.secure = true;
+}
 
 app.use(session(sessionConfig));
 app.use(express.json());

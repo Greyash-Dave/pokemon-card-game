@@ -48,15 +48,6 @@ function DeckBuilder() {
       setInGameMenu
   } = usePokemon();  // Destructure the context values
 
-    // Use Vite's environment variable syntax
-    if (process.env.NODE_ENV === 'production'|| import.meta.env.NODE_ENV === 'production') {
-      var API_URL = import.meta.env.VITE_API_URL;
-    }else{
-      var API_URL = 'http://localhost:5000'
-    }
-
-    // var API_URL = 'http://localhost:5000'
-
     var name = '';
     var index = 0;
 
@@ -122,7 +113,7 @@ function DeckBuilder() {
               ]
           };
           
-          const response = await fetch(`${API_URL}/decklist`, {
+          const response = await fetch(`http://localhost:5000/decklist`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(body)
@@ -200,7 +191,7 @@ function DeckBuilder() {
         if (pokemonName !== "") {
             try {
                 // First, try to fetch from our local server (which will check the database)
-                const serverResponse = await fetch(`${API_URL}/pokemon/${pokemonName}`);
+                const serverResponse = await fetch(`http://localhost:5000/pokemon/${pokemonName}`);
                 if (!serverResponse.ok) {
                     throw new Error("Could not fetch result from server");
                 }

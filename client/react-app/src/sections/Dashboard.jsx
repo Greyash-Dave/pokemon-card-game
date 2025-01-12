@@ -9,13 +9,6 @@ function Dashboard() {
   const [error, setError] = useState(null);
   const { isLoggedIn, user } = useAuth();
 
-  // Use Vite's environment variable syntax
-  if (process.env.NODE_ENV === 'production'|| import.meta.env.NODE_ENV === 'production') {
-    var API_URL = import.meta.env.VITE_API_URL;
-  }else{
-    var API_URL = 'http://localhost:5000'
-  }
-
   useEffect(() => {
     const fetchData = async () => {
       if (!isLoggedIn || !user) {
@@ -26,7 +19,7 @@ function Dashboard() {
 
       try {
         // First verify authentication
-        const authResponse = await fetch(`${API_URL}/check-auth`, {
+        const authResponse = await fetch('http://localhost:5000/check-auth', {
           credentials: 'include'
         });
         const authData = await authResponse.json();
@@ -38,7 +31,7 @@ function Dashboard() {
         }
 
         // Fetch battle results with error handling for specific status codes
-        const resultsResponse = await fetch(`${API_URL}/results/${user.username}`, {
+        const resultsResponse = await fetch(`http://localhost:5000/results/${user.username}`, {
           credentials: 'include'
         });
         
@@ -62,7 +55,7 @@ function Dashboard() {
         setResults(resultsData);
 
         // Fetch decks with similar error handling
-        const decksResponse = await fetch(`${API_URL}/deckdisplay/${user.username}`, {
+        const decksResponse = await fetch(`http://localhost:5000/deckdisplay/${user.username}`, {
           credentials: 'include'
         });
         

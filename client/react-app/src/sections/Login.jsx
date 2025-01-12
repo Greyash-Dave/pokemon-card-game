@@ -33,7 +33,6 @@ function Login() {
         },
         body: JSON.stringify({ username, password }),
         credentials: 'include',
-        mode: 'cors',
       });
 
       // Check if response is ok before trying to parse JSON

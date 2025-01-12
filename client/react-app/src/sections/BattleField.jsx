@@ -40,13 +40,6 @@ function BattleField(){
       setInGameMenu
   } = usePokemon(); 
 
-    // Use Vite's environment variable syntax
-    if (process.env.NODE_ENV === 'production'|| import.meta.env.NODE_ENV === 'production') {
-      var API_URL = import.meta.env.VITE_API_URL;
-    }else{
-      var API_URL = 'http://localhost:5000'
-    }
-
   const carddatas = [ ...pokemonDatas];
 //   const cards = [ ...pokemonCards];
 
@@ -228,7 +221,7 @@ const [isAnimating, setIsAnimating] = useState(false);
                         >
                             <img
                                 className="pokemoncard"
-                                src={oppCardData[0] ? oppCardData[curOpCardIndex].cardData.sprites.other.showdown.front_default : "/images/logo-pokeball.png"}
+                                src={oppCardData[0] ? oppCardData[curOpCardIndex].cardData.sprites.other.showdown.front_default : "images/logo-pokeball.png"}
                                 alt="Pokemon Image"
                             />
                         </motion.button>
@@ -313,7 +306,7 @@ const [isAnimating, setIsAnimating] = useState(false);
               <img
                   key={i}
                   className="pokemoncard"
-                  src="/images/logo-pokeball.png"
+                  src="images/logo-pokeball.png"
                   alt="Pokemon Image"
               />
               </button>
@@ -404,7 +397,7 @@ const [isAnimating, setIsAnimating] = useState(false);
           <button className="cardbtn">
           <img
             className="pokemoncard"
-            src={oppCardData[0]? oppCardData[curOpCardIndex].cardData.sprites.other.showdown.front_default : "/images/logo-pokeball.png"}
+            src={oppCardData[0]? oppCardData[curOpCardIndex].cardData.sprites.other.showdown.front_default : "images/logo-pokeball.png"}
             alt="Pokemon Image"
           />
           </button>
@@ -455,7 +448,7 @@ const [isAnimating, setIsAnimating] = useState(false);
               status: res
           };
           
-          const response = await fetch(`${API_URL}/result`, {
+          const response = await fetch("http://localhost:5000/result", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(body)
@@ -485,7 +478,7 @@ const [isAnimating, setIsAnimating] = useState(false);
             status: res == "win"? "lose":"win"
         };
         
-        const response = await fetch(`${API_URL}/result`, {
+        const response = await fetch("http://localhost:5000/result", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body)

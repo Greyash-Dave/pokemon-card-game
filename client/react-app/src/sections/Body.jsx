@@ -15,13 +15,6 @@ function Body(){
     const [remCard, setRemCard] = useState(false);
     const [inGame, setInGame] = useState(false);
     const [inGameMenu, setInGameMenu] = useState(true);
-
-    // Use Vite's environment variable syntax
-    if (process.env.NODE_ENV === 'production'|| import.meta.env.NODE_ENV === 'production') {
-      var API_URL = import.meta.env.VITE_API_URL;
-    }else{
-      var API_URL = 'http://localhost:5000'
-    }
     
     var name = '';
     var index = 0;
@@ -85,7 +78,7 @@ function Body(){
             ]
         };
         
-        const response = await fetch(`${API_URL}/decklist`, {
+        const response = await fetch("http://localhost:5000/decklist", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body)
@@ -233,7 +226,7 @@ function Body(){
   
       const fetchDeckNames = async () => {
           try {
-              const response = await fetch(`${API_URL}/deckdisplay`);
+              const response = await fetch('http://localhost:5000/deckdisplay');
               if (!response.ok) {
                   throw new Error('Network response was not ok ' + response.statusText);
               }
@@ -246,7 +239,7 @@ function Body(){
   
       async function loadDeck(deckName){
           try {
-              const response = await fetch(`${API_URL}/decklist/${deckName}`);
+              const response = await fetch(`http://localhost:5000/decklist/${deckName}`);
               if (!response.ok) {
                   throw new Error('Network response was not ok ' + response.statusText);
               }
