@@ -3,13 +3,11 @@ import { useNavigate } from "react-router-dom";
 import PokemonCard from "../components/PokemonCard";
 import { usePokemon } from "../App";
 import { useAuth } from '../AuthContext';
-import useApiErrorHandler from './useApiErrorHandler';
 import './GameMenu.css';
 
 function GameMenu() {
     const { user } = useAuth();
     const navigate = useNavigate();
-    const { fetchWithAuth } = useApiErrorHandler();
     
     const {
         pokemonCards,
@@ -24,7 +22,11 @@ function GameMenu() {
         setCardList,
     } = usePokemon();
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    if (process.env.NODE_ENV === 'production' || import.meta.env.NODE_ENV === 'production') {
+        var API_URL = import.meta.env.VITE_API_URL;
+    } else {
+        var API_URL = 'http://localhost:5000';
+    }
 
     useEffect(() => {
         fetchDeckNames();
@@ -32,21 +34,16 @@ function GameMenu() {
 
     const fetchDeckNames = async () => {
         try {
-            const response = await fetchWithAuth(`${API_URL}/deckdisplay/${user.username}`);
+            const response = await fetch(`${API_URL}/deckdisplay/${user.username}`, {
+                credentials: 'include'
+            });
+            if (!response.ok) {
+                throw new Error('Failed to fetch deck names');
+            }
             const decklists = await response.json();
             setDeckNames(decklists.map(deck => deck.deck_name));
         } catch (error) {
-            console.error('Failed to fetch deck names:', error);
-        }
-    };
-
-    const fetchPokemonData = async (pokemonName) => {
-        try {
-            const response = await fetchWithAuth(`${API_URL}/pokemon/${pokemonName}`);
-            return await response.json();
-        } catch (error) {
-            console.error(`Failed to fetch Pokemon ${pokemonName}:`, error);
-            return null;
+            console.error('Error fetching deck names:', error);
         }
     };
 
@@ -57,34 +54,38 @@ function GameMenu() {
             const datas = [];
 
             for (let pokemonName of deckList) {
-                const data = await fetchPokemonData(pokemonName);
-                if (data) {
+                try {
+                    const response = await fetch(`${API_URL}/pokemon/${pokemonName}`, {
+                        credentials: 'include'
+                    });
+                    if (!response.ok) {
+                        throw new Error("Could not fetch result");
+                    }
+
+                    const data = await response.json();
                     datas.push(data);
 
-                    const desc = "Type => | " + data.types.map(type => type.type.name).join(" | ");
-                    cards.push(
-                        <PokemonCard 
-                            key={data.id}
-                            width={20} 
-                            pokemonData={data} 
-                            pokemonDesc={desc} 
-                        />
-                    );
+                    let desc = "Type => | ";
+                    data.types.forEach((type) => {
+                        desc += type.type.name + " | ";
+                    });
+                    cards.push(<PokemonCard width={20} pokemonData={data} pokemonDesc={desc.trim()} />);
 
                     newCardList.push(
-                        <div key={data.id} className="card-list">
+                        <div className="card-list">
                             <button className="cardbtn">
                                 <img
                                     className="pokemoncard"
                                     src={data.sprites?.other?.['official-artwork']?.front_default}
-                                    alt={`${data.name} official artwork`}
+                                    alt={data.name}
                                 />
                             </button>
                         </div>
                     );
+                } catch (error) {
+                    console.error('Error fetching Pokemon data:', error);
                 }
             }
-            
             setCardList(newCardList);
             setPokemonCards(cards);
             setPokemonDatas(datas);
@@ -93,11 +94,16 @@ function GameMenu() {
 
     async function loadDeck(deckName) {
         try {
-            const response = await fetchWithAuth(`${API_URL}/decklist/${user.username}/${deckName}`);
+            const response = await fetch(`${API_URL}/decklist/${user.username}/${deckName}`, {
+                credentials: 'include'
+            });
+            if (!response.ok) {
+                throw new Error('Failed to load deck');
+            }
             const deck = await response.json();
             await fetchData2(deck.deck_list);
         } catch (error) {
-            console.error('Failed to load deck:', error);
+            console.error('Error loading deck:', error);
         }
     }
 
@@ -120,11 +126,7 @@ function GameMenu() {
                 <div className="game-menu-container">
                     <h1>Deck List</h1>
                     <div>
-                        <select 
-                            onChange={handleDeckNameChange} 
-                            value={selectedDeckName}
-                            className="deck-select"
-                        >
+                        <select onChange={handleDeckNameChange} value={selectedDeckName}>
                             <option value="" disabled>Select a deck</option>
                             {deckNames.map(name => (
                                 <option key={name} value={name}>{name}</option>
