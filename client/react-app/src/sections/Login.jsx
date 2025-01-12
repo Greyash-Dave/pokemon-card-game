@@ -11,8 +11,12 @@ function Login() {
   const navigate = useNavigate();
   const { setUser, setIsLoggedIn } = useAuth();
 
-  // Simplified API URL determination
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  // Use Vite's environment variable syntax
+  if (process.env.NODE_ENV === 'production'|| import.meta.env.NODE_ENV === 'production') {
+    var API_URL = import.meta.env.VITE_API_URL;
+  }else{
+    var API_URL = 'http://localhost:5000'
+  }
   
   console.log('Current API URL:', API_URL);
 
