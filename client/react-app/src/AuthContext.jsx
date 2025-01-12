@@ -1,21 +1,21 @@
+// AuthContext.js
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 
 const AuthContext = createContext();
 
 const INACTIVITY_TIMEOUT = 10 * 1000; // 10 seconds
 
-if (process.env.NODE_ENV === 'production'|| import.meta.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production' || import.meta.env.NODE_ENV === 'production') {
   var API_URL = import.meta.env.VITE_API_URL;
-}else{
-  var API_URL = 'http://localhost:5000'
+} else {
+  var API_URL = 'http://localhost:5000';
 }
-
-console.log('API URL in AuthProvider:', API_URL);
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [logoutError, setLogoutError] = useState(null);
 
   // Generic fetch handler with error handling
   const fetchWithAuth = async (endpoint, options = {}) => {
@@ -37,62 +37,41 @@ export const AuthProvider = ({ children }) => {
       }
 
       const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new TypeError('Expected JSON response but got ' + contentType);
+      if (contentType && contentType.includes('application/json')) {
+        return await response.json();
       }
-
-      return await response.json();
+      return { success: true }; // For endpoints that don't return JSON
     } catch (error) {
       console.error(`API Error (${endpoint}):`, error);
       throw error;
     }
   };
 
-  // Check authentication status when the app loads
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const data = await fetchWithAuth('/check-auth');
-        setIsLoggedIn(data.isLoggedIn);
-        setUser(data.user || null);
-      } catch (error) {
-        setIsLoggedIn(false);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
-
-  const login = useCallback(async (credentials) => {
-    try {
-      const data = await fetchWithAuth('/login', {
-        method: 'POST',
-        body: JSON.stringify(credentials),
-      });
-
-      setIsLoggedIn(true);
-      setUser(data.user);
-      return { success: true };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.message || 'An error occurred during login'
-      };
-    }
-  }, []);
-
+  // Enhanced logout function with better error handling
   const logout = useCallback(async () => {
+    setLogoutError(null);
     try {
-      await fetchWithAuth('/logout', { method: 'POST' });
+      setIsLoading(true);
+      await fetchWithAuth('/logout', { 
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      // Clear all auth-related state
       setIsLoggedIn(false);
       setUser(null);
-      return true;
+      
+      // Clear any auth-related items from localStorage if you're using any
+      localStorage.removeItem('lastActivity');
+      
+      return { success: true };
     } catch (error) {
+      const errorMessage = error.message || 'Failed to logout. Please try again.';
+      setLogoutError(errorMessage);
       console.error('Logout error:', error);
-      return false;
+      return { success: false, error: errorMessage };
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -145,7 +124,8 @@ export const AuthProvider = ({ children }) => {
         setUser, 
         login, 
         logout,
-        isLoading 
+        isLoading,
+        logoutError 
       }}
     >
       {children}

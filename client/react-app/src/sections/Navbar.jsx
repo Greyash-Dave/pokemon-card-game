@@ -32,9 +32,9 @@ function Navbar() {
     <nav className={`navbar ${isScrolled ? 'navbar-scrolled' : ''}`}>
       <div className="navbar-content">
         <div className="navbar-brand">
-          <Link to="/" className="logo">Poke Battle</Link>
+          <Link to="/" className="logo">Pokemon Card Game</Link>
         </div>
-
+    
         <button 
           className={`mobile-menu-button ${isMobileMenuOpen ? 'active' : ''}`}
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
