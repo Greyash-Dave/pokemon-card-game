@@ -5,7 +5,7 @@ import { useAuth } from '../AuthContext';
 import './Navbar.css';
 
 function Navbar() {
-  const { isLoggedIn, logout, user } = useAuth();
+  const { user, logout } = useAuth();  // We only need user and logout now
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -18,7 +18,7 @@ function Navbar() {
       <div><Link to="/">Home</Link></div>
       <div><Link to="/deck-builder">Deck Builder</Link></div>
       <div><Link to="/game-menu">Menu</Link></div>
-      {isLoggedIn ? (
+      {user ? (
         <>
           <div><Link to="/dashboard">Dashboard</Link></div>
           <div><button className='log-btn' onClick={handleLogout}>Logout</button></div>
