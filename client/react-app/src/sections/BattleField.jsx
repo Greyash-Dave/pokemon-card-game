@@ -228,7 +228,7 @@ const [isAnimating, setIsAnimating] = useState(false);
                         >
                             <img
                                 className="pokemoncard"
-                                src={oppCardData[0] ? oppCardData[curOpCardIndex].cardData.sprites.other.showdown.front_default : "images/logo-pokeball.png"}
+                                src={oppCardData[0] ? oppCardData[curOpCardIndex].cardData.sprites.other.showdown.front_default : "./src/images/logo-pokeball.png"}
                                 alt="Pokemon Image"
                             />
                         </motion.button>
@@ -313,7 +313,7 @@ const [isAnimating, setIsAnimating] = useState(false);
               <img
                   key={i}
                   className="pokemoncard"
-                  src="images/logo-pokeball.png"
+                  src="./src/images/logo-pokeball.png"
                   alt="Pokemon Image"
               />
               </button>
@@ -404,7 +404,7 @@ const [isAnimating, setIsAnimating] = useState(false);
           <button className="cardbtn">
           <img
             className="pokemoncard"
-            src={oppCardData[0]? oppCardData[curOpCardIndex].cardData.sprites.other.showdown.front_default : "images/logo-pokeball.png"}
+            src={oppCardData[0]? oppCardData[curOpCardIndex].cardData.sprites.other.showdown.front_default : "./src/images/logo-pokeball.png"}
             alt="Pokemon Image"
           />
           </button>
@@ -751,12 +751,12 @@ const [isAnimating, setIsAnimating] = useState(false);
             </div>}
           </div>
           <div className="battlefield">
-                <img className="bg-image" src="/images/pokemon_battlefield.png" alt="bg" />
+                <img className="bg-image" src="./src/images/pokemon_battlefield.png" alt="bg" />
                 {placeCards(carddatas, 1)}
                 {placeCards(carddatas, 2)}
                 {playerField}
                 {oponentField}
-                <div className="back-button"><img className="back-button-img" src='/images/back-button.svg' onClick={handleBack} ></img><div>Exit</div></div>
+                <div className="back-button"><img className="back-button-img" src='./src/images/back-button.svg' onClick={handleBack} ></img><div>Exit</div></div>
                 {(cond === 1) ?   
                     <>
                         <div className="bfui">
