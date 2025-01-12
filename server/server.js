@@ -63,7 +63,7 @@ console.log(process.env.FRONTEND_URL);
 
 // CORS and session configuration
 app.use(cors({
-    origin: 'https://pokemon-card-game-client.vercel.app',
+    origin: ['https://pokemon-card-game-client.vercel.app', process.env.FRONTEND_URL],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
