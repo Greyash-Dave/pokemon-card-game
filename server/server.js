@@ -119,15 +119,26 @@ const morganFormat = process.env.NODE_ENV === 'production'
   ? ":remote-addr - :remote-user [:date[clf]] ':method :url HTTP/:http-version' :status :res[content-length] ':referrer' ':user-agent'"
   : "dev";
 
+// app.use(morgan(morganFormat, {
+// stream: {
+//     write: (message) => {
+//     const trimmedMessage = message.trim();
+//     const logEntry = `Date: ${new Date().toISOString()} - ${trimmedMessage}`;
+//     logs.push(logEntry.replace(/\u001b\[.*?m/g, '')); // Store the log message in the array
+//     logger.info(trimmedMessage); // Log the message using your custom logger
+//     },
+// },
+// }));
+
 app.use(morgan(morganFormat, {
-stream: {
-    write: (message) => {
-    const trimmedMessage = message.trim();
-    logs.push(trimmedMessage.replace(/\u001b\[.*?m/g, '')); // Store the log message in the array
-    logger.info(trimmedMessage); // Log the message using your custom logger
+    stream: {
+        write: (message) => {
+        const trimmedMessage = message.trim();
+        logs.push(trimmedMessage.replace(/\u001b\[.*?m/g, '')); // Store the log message in the array
+        logger.info(trimmedMessage); // Log the message using your custom logger
+        },
     },
-},
-}));
+    }));
 
 console.log(process.env.FRONTEND_URL);
 

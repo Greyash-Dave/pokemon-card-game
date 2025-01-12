@@ -86,7 +86,9 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(async () => {
     try {
-      await fetchWithAuth('/logout', { method: 'POST' });
+      if (process.env.NODE_ENV !== 'production'|| import.meta.env.NODE_ENV === 'production') {
+        await fetchWithAuth('/logout', { method: 'POST' });
+      }
       setIsLoggedIn(false);
       setUser(null);
       return true;
