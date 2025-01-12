@@ -11,6 +11,35 @@ const rateLimit = require('express-rate-limit');
 
 const app = express();
 
+// Add more detailed error logging
+app.use((err, req, res, next) => {
+    console.error('Detailed error:', {
+        message: err.message,
+        stack: err.stack,
+        status: err.status,
+        name: err.name
+    });
+    
+    logger.error('Error details:', {
+        message: err.message,
+        stack: err.stack,
+        status: err.status,
+        name: err.name,
+        url: req.originalUrl,
+        method: req.method,
+        ip: req.ip
+    });
+
+    res.status(err.status || 500).json({
+        message: process.env.NODE_ENV === 'production' 
+            ? 'Internal server error' 
+            : err.message,
+        error: process.env.NODE_ENV === 'production' 
+            ? {} 
+            : err
+    });
+});
+
 const corsOptions = {
     origin: (origin, callback) => {
         const allowedOrigins = [
@@ -47,19 +76,21 @@ app.use(cors(corsOptions));
 
 // Update session configuration
 const sessionConfig = {
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
-    proxy: true,
-    cookie: { 
-        secure: process.env.NODE_ENV === 'production',
+    cookie: {
+        secure: true,
         httpOnly: true,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        maxAge: 30 * 60 * 1000
+        sameSite: 'none',
+        maxAge: 1000 * 60 * 60 * 24 // 24 hours
     }
 };
 
-app.set('trust proxy', 1);
+if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1);
+}
+
 app.use(session(sessionConfig));
 
 // Supabase client initialization
@@ -67,6 +98,17 @@ const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 );
+
+// Add error handling for Supabase connection
+const supabaseErrorHandler = (err) => {
+    console.error('Supabase Error:', err);
+    logger.error('Supabase Error:', {
+        message: err.message,
+        code: err.code,
+        details: err.details
+    });
+    return new Error('Database operation failed');
+};
 
 // Winston logger configuration
 const logger = winston.createLogger({
@@ -253,37 +295,59 @@ app.post('/register', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-  
-    if (!username || !password) {
-        return res.status(400).json({ message: 'Username and password are required' });
-    }
-  
     try {
-        const { data: user, error } = await supabase
+        const { username, password } = req.body;
+
+        if (!username || !password) {
+            return res.status(400).json({ 
+                message: 'Username and password are required' 
+            });
+        }
+
+        const { data: user, error: fetchError } = await supabase
             .from('users')
             .select('*')
             .eq('username', username)
             .single();
 
-        if (error || !user) {
-            return res.status(401).json({ message: 'Invalid username or password' });
+        if (fetchError) {
+            logger.error('Supabase fetch error:', fetchError);
+            throw new Error('Database operation failed');
+        }
+
+        if (!user) {
+            return res.status(401).json({ 
+                message: 'Invalid username or password' 
+            });
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Invalid username or password' });
+            return res.status(401).json({ 
+                message: 'Invalid username or password' 
+            });
         }
 
-        req.session.user = { username: user.username };
+        req.session.user = { 
+            username: user.username,
+            id: user.id 
+        };
+
         res.json({ 
-            message: 'Login successful', 
-            user: { username: user.username } 
+            message: 'Login successful',
+            user: { 
+                username: user.username,
+                id: user.id
+            }
         });
+
     } catch (error) {
         logger.error('Login error:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ 
+            message: 'Internal server error',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 });
 
