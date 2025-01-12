@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect, useCallback } fr
 
 const AuthContext = createContext();
 
-const INACTIVITY_TIMEOUT = 10 * 1000; // 10 seconds
+const INACTIVITY_TIMEOUT = import.meta.env.INACTIVITY_TIME * 60 * 1000;
 
 if (process.env.NODE_ENV === 'production'|| import.meta.env.NODE_ENV === 'production') {
   var API_URL = import.meta.env.VITE_API_URL;
