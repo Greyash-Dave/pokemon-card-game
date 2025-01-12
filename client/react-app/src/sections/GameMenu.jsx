@@ -49,9 +49,16 @@ function GameMenu() {
         fetchDeckNames();
     }, []);
 
+        // Use Vite's environment variable syntax
+        if (process.env.NODE_ENV === 'production'|| import.meta.env.NODE_ENV === 'production') {
+            var API_URL = import.meta.env.VITE_API_URL;
+          }else{
+            var API_URL = 'http://localhost:5000'
+          }
+
     const fetchDeckNames = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/deckdisplay/${user.username}`);
+            const response = await fetch(`${API_URL}/deckdisplay/${user.username}`);
             if (!response.ok) {
                 throw new Error('Network response was not ok ' + response.statusText);
             }
@@ -111,7 +118,7 @@ function GameMenu() {
 
     async function loadDeck(deckName) {
         try {
-            const response = await fetch(`http://localhost:5000/decklist/${user.username}/${deckName}`);
+            const response = await fetch(`${API_URL}/decklist/${user.username}/${deckName}`);
             if (!response.ok) {
                 throw new Error('Network response was not ok ' + response.statusText);
             }
