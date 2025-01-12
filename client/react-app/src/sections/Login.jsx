@@ -12,9 +12,9 @@ function Login() {
   const { setUser, setIsLoggedIn } = useAuth();
 
   // Use Vite's environment variable syntax
-  if (process.env.NODE_ENV === 'production'|| import.meta.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' || import.meta.env.NODE_ENV === 'production') {
     var API_URL = import.meta.env.VITE_API_URL;
-  }else{
+  } else {
     var API_URL = 'http://localhost:5000'
   }
   
@@ -48,11 +48,14 @@ function Login() {
             throw new Error(data.message || 'Failed to login');
         }
 
+        // Update auth context and local storage
         setUser(data.user);
         setIsLoggedIn(true);
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('loginTimestamp', Date.now().toString());
-        navigate('/');
+        
+        // Redirect to dashboard instead of home
+        navigate('/dashboard');
         
     } catch (error) {
         console.error('Login error:', {
@@ -64,7 +67,7 @@ function Login() {
     } finally {
         setIsLoading(false);
     }
-};
+  };
 
   const checkSessionTimeout = () => {
     const loginTimestamp = localStorage.getItem('loginTimestamp');
@@ -84,7 +87,13 @@ function Login() {
 
   React.useEffect(() => {
     checkSessionTimeout();
-  }, []);
+    
+    // Redirect to dashboard if user is already logged in
+    const user = localStorage.getItem('user');
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
 
   return (
     <div className="login-bg">
