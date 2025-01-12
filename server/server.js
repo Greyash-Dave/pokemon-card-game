@@ -80,16 +80,13 @@ const sessionConfig = {
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: true,
+        secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
-        sameSite: 'none',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 1000 * 60 * 60 * 24 // 24 hours
-    }
+    },
+    proxy: process.env.NODE_ENV === 'production'
 };
-
-if (process.env.NODE_ENV === 'production') {
-    app.set('trust proxy', 1);
-}
 
 app.use(session(sessionConfig));
 
@@ -162,6 +159,10 @@ const isAuthenticated = (req, res, next) => {
         res.status(401).json({ message: 'Not authenticated' });
     }
 };
+
+app.get('/', (req, res) => {
+    res.json({ message: 'Server is running' });
+});
 
 // Routes
 app.post("/result", isAuthenticated, async (req, res) => {
@@ -312,7 +313,10 @@ app.post('/login', async (req, res) => {
 
         if (fetchError) {
             logger.error('Supabase fetch error:', fetchError);
-            throw new Error('Database operation failed');
+            return res.status(500).json({ 
+                message: 'Database operation failed',
+                error: process.env.NODE_ENV === 'development' ? fetchError : undefined
+            });
         }
 
         if (!user) {
@@ -333,6 +337,13 @@ app.post('/login', async (req, res) => {
             username: user.username,
             id: user.id 
         };
+
+        await new Promise((resolve, reject) => {
+            req.session.save((err) => {
+                if (err) reject(err);
+                resolve();
+            });
+        });
 
         res.json({ 
             message: 'Login successful',
