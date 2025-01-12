@@ -11,35 +11,6 @@ const rateLimit = require('express-rate-limit');
 
 const app = express();
 
-// Add more detailed error logging
-app.use((err, req, res, next) => {
-    console.error('Detailed error:', {
-        message: err.message,
-        stack: err.stack,
-        status: err.status,
-        name: err.name
-    });
-    
-    logger.error('Error details:', {
-        message: err.message,
-        stack: err.stack,
-        status: err.status,
-        name: err.name,
-        url: req.originalUrl,
-        method: req.method,
-        ip: req.ip
-    });
-
-    res.status(err.status || 500).json({
-        message: process.env.NODE_ENV === 'production' 
-            ? 'Internal server error' 
-            : err.message,
-        error: process.env.NODE_ENV === 'production' 
-            ? {} 
-            : err
-    });
-});
-
 const corsOptions = {
     origin: (origin, callback) => {
         const allowedOrigins = [
@@ -252,6 +223,47 @@ app.get("/deckdisplay/:user", isAuthenticated, async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
+
+app.get('/results/:username', isAuthenticated, async (req, res) => {
+    try {
+      const username = req.params.username;
+  
+      // Check if user is requesting their own results
+      if (username !== req.session.user.username) {
+        return res.status(403).json({ message: 'Unauthorized' });
+      }
+  
+      // Fetch results from Supabase
+      const { data, error } = await supabase
+        .from('result')
+        .select('*')
+        .eq('player', username);
+  
+      if (error) throw error;
+  
+      res.json(data);
+    } catch (err) {
+      logger.error("Error fetching results:", err);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+app.get('/check-auth', (req, res) => {
+    if (req.session.user) {
+      res.json({
+        isLoggedIn: true,
+        user: {
+          username: req.session.user.username,
+          id: req.session.user.id
+        }
+      });
+    } else {
+      res.json({
+        isLoggedIn: false,
+        user: null
+      });
+    }
+  });
 
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
@@ -476,19 +488,59 @@ app.get("/decklist/:user/:name", isAuthenticated, async (req, res) => {
 });
 
 // Error handler
-app.use((err, req, res, next) => {
-    logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+// app.use((err, req, res, next) => {
+//     logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
     
-    if (process.env.NODE_ENV === 'development') {
-        res.status(err.status || 500).json({
-            message: err.message,
-            stack: err.stack
-        });
-    } else {
-        res.status(err.status || 500).json({
-            message: 'Internal server error'
-        });
-    }
+//     if (process.env.NODE_ENV === 'development') {
+//         res.status(err.status || 500).json({
+//             message: err.message,
+//             stack: err.stack
+//         });
+//     } else {
+//         res.status(err.status || 500).json({
+//             message: 'Internal server error'
+//         });
+//     }
+// });
+
+// Error handler should be last
+// app.use((err, req, res, next) => {
+//     logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+    
+//     res.status(err.status || 500).json({
+//         message: process.env.NODE_ENV === 'production' 
+//             ? 'Internal server error' 
+//             : err.message
+//     });
+// });
+
+// Add more detailed error logging
+app.use((err, req, res, next) => {
+    console.error('Detailed error:', {
+        message: err.message,
+        stack: err.stack,
+        status: err.status,
+        name: err.name
+    });
+    
+    logger.error('Error details:', {
+        message: err.message,
+        stack: err.stack,
+        status: err.status,
+        name: err.name,
+        url: req.originalUrl,
+        method: req.method,
+        ip: req.ip
+    });
+
+    res.status(err.status || 500).json({
+        message: process.env.NODE_ENV === 'production' 
+            ? 'Internal server error' 
+            : err.message,
+        error: process.env.NODE_ENV === 'production' 
+            ? {} 
+            : err
+    });
 });
 
 // Server startup
