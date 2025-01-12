@@ -55,6 +55,8 @@ function DeckBuilder() {
       var API_URL = 'http://localhost:5000'
     }
 
+    var API_URL = 'http://localhost:5000'
+
     var name = '';
     var index = 0;
 
