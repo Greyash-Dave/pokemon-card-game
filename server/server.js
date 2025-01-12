@@ -135,8 +135,167 @@ const isAuthenticated = (req, res, next) => {
     }
 };
 
-app.get('/', (req, res) => {
-    res.json({ message: 'Server is running' });
+const log = async (level, message, meta = {}) => {
+    const timestamp = new Date().toISOString();
+    const logEntry = {
+        timestamp,
+        level,
+        message,
+        meta: JSON.stringify(meta)
+    };
+
+    console.log(`[${timestamp}] ${level}: ${message}`, meta);
+
+    try {
+        const { error } = await supabase
+            .from('server_logs')
+            .insert([logEntry]);
+        
+        if (error) {
+            console.error('Error saving log to Supabase:', error);
+        }
+    } catch (err) {
+        console.error('Error in logging:', err);
+    }
+};
+
+// Root endpoint with log display
+app.get('/', async (req, res) => {
+    try {
+        // Fetch recent logs from Supabase
+        const { data: logs, error } = await supabase
+            .from('server_logs')
+            .select('*')
+            .order('timestamp', { ascending: false })
+            .limit(100);
+
+        if (error) throw error;
+
+        res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Server Logs</title>
+                <style>
+                    body { 
+                        font-family: monospace; 
+                        background: #1e1e1e; 
+                        color: #d4d4d4; 
+                        margin: 0; 
+                        padding: 20px; 
+                    }
+                    #logs { 
+                        white-space: pre-wrap; 
+                        word-wrap: break-word; 
+                    }
+                    .log-entry {
+                        padding: 5px;
+                        border-bottom: 1px solid #333;
+                    }
+                    .info { color: #569cd6; }
+                    .error { color: #f44747; }
+                    .warn { color: #dcdcaa; }
+                    .debug { color: #6a9955; }
+                    .timestamp { color: #808080; }
+                    #controls {
+                        position: fixed;
+                        top: 0;
+                        right: 0;
+                        padding: 10px;
+                        background: #2d2d2d;
+                    }
+                </style>
+            </head>
+            <body>
+                <div id="controls">
+                    <button onclick="clearLogs()">Clear Logs</button>
+                    <button onclick="refreshLogs()">Refresh</button>
+                </div>
+                <h1>Server Logs</h1>
+                <div id="logs"></div>
+                <script>
+                    const logsDiv = document.getElementById('logs');
+                    
+                    function addLogEntry(log) {
+                        const entry = document.createElement('div');
+                        entry.className = 'log-entry ' + log.level;
+                        let metaText = '';
+                        try {
+                            const meta = JSON.parse(log.meta);
+                            metaText = Object.keys(meta).length > 0 ? 
+                                ' ' + JSON.stringify(meta, null, 2) : '';
+                        } catch (e) {
+                            metaText = log.meta ? ' ' + log.meta : '';
+                        }
+                        entry.innerHTML = \`<span class="timestamp">[${log.timestamp}]</span> ${log.level.toUpperCase()}: ${log.message} ${metaText}\`;
+                        logsDiv.insertBefore(entry, logsDiv.firstChild);
+                    }
+
+                    async function refreshLogs() {
+                        try {
+                            const response = await fetch('/api/logs');
+                            const logs = await response.json();
+                            logsDiv.innerHTML = '';
+                            logs.forEach(addLogEntry);
+                        } catch (error) {
+                            console.error('Error fetching logs:', error);
+                        }
+                    }
+
+                    async function clearLogs() {
+                        if (confirm('Are you sure you want to clear all logs?')) {
+                            try {
+                                await fetch('/api/logs/clear', { method: 'POST' });
+                                refreshLogs();
+                            } catch (error) {
+                                console.error('Error clearing logs:', error);
+                            }
+                        }
+                    }
+
+                    // Initial load
+                    ${JSON.stringify(logs)}.forEach(addLogEntry);
+
+                    // Refresh every 5 seconds
+                    setInterval(refreshLogs, 5000);
+                </script>
+            </body>
+            </html>
+        `);
+    } catch (error) {
+        res.status(500).send('Error fetching logs');
+    }
+});
+
+// API endpoint to fetch logs
+app.get('/api/logs', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('server_logs')
+            .select('*')
+            .order('timestamp', { ascending: false })
+            .limit(100);
+
+        if (error) throw error;
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch logs' });
+    }
+});
+
+// API endpoint to clear logs
+app.post('/api/logs/clear', async (req, res) => {
+    try {
+        const { error } = await supabase
+            .from('server_logs')
+            .delete()
+            .gte('timestamp', '1970-01-01');
+
+        if (error) throw error;
+        res.json({ message: 'Logs cleared' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to clear logs' });
+    }
 });
 
 // Routes
