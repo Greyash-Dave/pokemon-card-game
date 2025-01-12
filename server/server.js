@@ -123,8 +123,7 @@ app.use(morgan(morganFormat, {
 stream: {
     write: (message) => {
     const trimmedMessage = message.trim();
-    const logEntry = `Date: ${new Date().toISOString()} - ${trimmedMessage}`;
-    logs.push(logEntry.replace(/\u001b\[.*?m/g, '')); // Store the log message in the array
+    logs.push(trimmedMessage.replace(/\u001b\[.*?m/g, '')); // Store the log message in the array
     logger.info(trimmedMessage); // Log the message using your custom logger
     },
 },
