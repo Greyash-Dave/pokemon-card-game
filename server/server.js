@@ -74,6 +74,10 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Add this near the top of your server.js, before your routes
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Update session configuration
 const sessionConfig = {
     secret: process.env.SESSION_SECRET || 'your-secret-key',
@@ -296,14 +300,24 @@ app.post('/register', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
+    console.log('Login request received:', {
+        body: req.body,
+        headers: req.headers
+    });
+
     try {
         const { username, password } = req.body;
 
+        // Validate input
         if (!username || !password) {
+            console.log('Missing credentials:', { username: !!username, password: !!password });
             return res.status(400).json({ 
                 message: 'Username and password are required' 
             });
         }
+
+        // Log Supabase query attempt
+        console.log('Attempting Supabase query for username:', username);
 
         const { data: user, error: fetchError } = await supabase
             .from('users')
@@ -312,12 +326,19 @@ app.post('/login', async (req, res) => {
             .single();
 
         if (fetchError) {
-            logger.error('Supabase fetch error:', fetchError);
+            console.error('Supabase fetch error:', fetchError);
+            logger.error('Supabase fetch error:', {
+                error: fetchError,
+                username
+            });
             return res.status(500).json({ 
                 message: 'Database operation failed',
                 error: process.env.NODE_ENV === 'development' ? fetchError : undefined
             });
         }
+
+        // Log user lookup result
+        console.log('User lookup result:', { found: !!user });
 
         if (!user) {
             return res.status(401).json({ 
@@ -326,6 +347,9 @@ app.post('/login', async (req, res) => {
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
+        
+        // Log password validation result
+        console.log('Password validation result:', { isValid: isPasswordValid });
 
         if (!isPasswordValid) {
             return res.status(401).json({ 
@@ -333,17 +357,27 @@ app.post('/login', async (req, res) => {
             });
         }
 
+        // Set session
         req.session.user = { 
             username: user.username,
             id: user.id 
         };
 
+        // Log session creation attempt
+        console.log('Setting session:', req.session);
+
         await new Promise((resolve, reject) => {
             req.session.save((err) => {
-                if (err) reject(err);
+                if (err) {
+                    console.error('Session save error:', err);
+                    reject(err);
+                }
                 resolve();
             });
         });
+
+        // Log successful login
+        console.log('Login successful for user:', username);
 
         res.json({ 
             message: 'Login successful',
@@ -354,7 +388,18 @@ app.post('/login', async (req, res) => {
         });
 
     } catch (error) {
-        logger.error('Login error:', error);
+        console.error('Login error:', {
+            error,
+            stack: error.stack,
+            message: error.message
+        });
+        
+        logger.error('Login error:', {
+            error: error.message,
+            stack: error.stack,
+            username: req.body?.username
+        });
+
         res.status(500).json({ 
             message: 'Internal server error',
             details: process.env.NODE_ENV === 'development' ? error.message : undefined
