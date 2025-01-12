@@ -8,6 +8,13 @@ function Register() {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Use Vite's environment variable syntax
+  if (process.env.NODE_ENV === 'production'|| import.meta.env.NODE_ENV === 'production') {
+    var API_URL = import.meta.env.VITE_API_URL;
+  }else{
+    var API_URL = 'http://localhost:5000'
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
@@ -21,7 +28,7 @@ function Register() {
 
     try {
       console.log('Sending registration request...');
-      const response = await fetch('http://localhost:5000/register', {
+      const response = await fetch(`${API_URL}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
