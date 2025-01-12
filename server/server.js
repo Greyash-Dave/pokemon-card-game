@@ -11,6 +11,57 @@ const rateLimit = require('express-rate-limit');
 
 const app = express();
 
+const corsOptions = {
+    origin: (origin, callback) => {
+        const allowedOrigins = [
+            'https://pokemon-card-game-client.vercel.app',
+            'http://localhost:5173',
+            'http://localhost:5000'
+        ];
+        
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: [
+        'X-CSRF-Token',
+        'X-Requested-With',
+        'Accept',
+        'Accept-Version',
+        'Content-Length',
+        'Content-MD5',
+        'Content-Type',
+        'Date',
+        'X-Api-Version',
+        'Authorization'
+    ],
+    credentials: true,
+    preflightContinue: true,
+    optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+
+// Update session configuration
+const sessionConfig = {
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    proxy: true,
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        maxAge: 30 * 60 * 1000
+    }
+};
+
+app.set('trust proxy', 1);
+app.use(session(sessionConfig));
+
 // Supabase client initialization
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -60,33 +111,6 @@ app.use(morgan(morganFormat, {
 }));
 
 console.log(process.env.FRONTEND_URL);
-
-// CORS and session configuration
-app.use(cors({
-    origin: 'https://pokemon-card-game-client.vercel.app',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['X-CSRF-Token', 'X-Requested-With', 'Accept', 'Accept-Version', 'Content-Length', 'Content-MD5', 'Content-Type', 'Date', 'X-Api-Version', 'Authorization'],
-    credentials: true
-}));
-
-// Your existing middleware
-app.use(express.json());
-
-const sessionConfig = {
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    proxy: true,
-    cookie: { 
-        secure: true, // Force secure in production
-        httpOnly: true,
-        sameSite: 'none', // Required for cross-origin
-        maxAge: 30 * 60 * 1000
-    }
-};
-
-app.set('trust proxy', 1);
-app.use(session(sessionConfig));
 
 // Authentication middleware
 const isAuthenticated = (req, res, next) => {
