@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect, useCallback } fr
 
 const AuthContext = createContext();
 
-// console.log("INACTIVE TIME: " + import.meta.env.VITE_INACTIVITY_TIME)
+console.log("INACTIVE TIME: " + import.meta.env.VITE_INACTIVITY_TIME)
 
 const INACTIVITY_TIMEOUT = import.meta.env.VITE_INACTIVITY_TIME * 60 * 1000;
 
