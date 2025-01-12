@@ -32,7 +32,7 @@ function Navbar() {
     <nav className={`navbar ${isScrolled ? 'navbar-scrolled' : ''}`}>
       <div className="navbar-content">
         <div className="navbar-brand">
-          <Link to="/" className="logo">GameDeck</Link>
+          <Link to="/" className="logo">Poke Battle</Link>
         </div>
 
         <button 
