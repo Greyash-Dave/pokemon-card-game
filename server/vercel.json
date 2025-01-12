@@ -1,0 +1,27 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "index.js",
+        "use": "@vercel/node"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/.*",
+        "methods": ["OPTIONS"],
+        "headers": {
+          "Access-Control-Allow-Origin": "https://pokemon-card-game-client.vercel.app",
+          "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Max-Age": "86400"
+        },
+        "status": 204
+      },
+      {
+        "src": "/(.*)",
+        "dest": "/"
+      }
+    ]
+  }
