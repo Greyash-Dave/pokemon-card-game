@@ -6,7 +6,7 @@
 This project is a full-stack web-based Pokémon card game, developed purely for educational and learning purposes. It leverages the PokeAPI to provide accurate Pokémon data and enhance gameplay. **Please note that this is a non-profit project and does not own any of the resources used.** It features secure user authentication, session management, and is designed for serverless architecture for potential web hosting.
 
 <a href="https://www.youtube.com/watch?v=v021D_MnzvY">
-  <img src="https://raw.githubusercontent.com/Greyash-Dave/Greyash-Dave/main/images/shortify/1.PNG" alt="Watch the video">
+  <img src="https://raw.githubusercontent.com/Greyash-Dave/Greyash-Dave/main/images/pokemon-card-game/1.png" alt="Watch the video">
 </a>
 
 <hr>
